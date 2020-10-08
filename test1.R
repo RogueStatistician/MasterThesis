@@ -22,8 +22,8 @@ remove_limits <- function(column){
   column <- as.numeric(column)
   return(column)
 }
-base <- paste0(c('Simone','Uni','Tesi','erasmus','code','MasterThesis'), collapse= '/')
-
+#base <- paste0(c('Simone','Uni','Tesi','erasmus','code','MasterThesis'), collapse= '/')
+base <- '.'
 orig <- star_data <- read.csv(here::here(base,'Aerts-Molenberghs-Kenward-Neiner-Table.dat'),header = T,stringsAsFactors = F,na.strings = '*')
 star_data <- tibble(star_data)
 lower_limit <- upper_limit <- star_data%>% select(X2,X3,X4,X5,X6,X7,X10)
@@ -86,4 +86,4 @@ long_star_filtered <- long_star %>% group_by(HDnumber) %>%
   filter(X7 %between% c(unique(X7_l),unique(X7_u)))%>%
   filter(X10 %between% c(unique(X10_l),unique(X10_u)))
 
-write.csv(long_star_filtered,here::here(base,'long_star_filtered2.csv'))
+write.csv(long_star_filtered,here::here(base,'long_star_filtered3.csv'))
