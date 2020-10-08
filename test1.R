@@ -6,6 +6,8 @@ library(here)
 library(dplyr)
 library(stringr)
 library(magrittr)
+
+#functions to extract and remove the bounds for the variables
 to_limit <- function(column,type='<'){
   require(dplyr)
   if(!is.character(column)){
@@ -25,31 +27,24 @@ remove_limits <- function(column){
   return(column)
 }
 #base <- paste0(c('Simone','Uni','Tesi','erasmus','code','MasterThesis'), collapse= '/')
-base <- '.'
+#base <- '.'
+#reading the data as tibble
 orig <- star_data <- read.csv(here::here(base,'Aerts-Molenberghs-Kenward-Neiner-Table.dat'),header = T,stringsAsFactors = F,na.strings = '*')
 star_data <- tibble(star_data)
+#getting the limits for the variables with missing values
 lower_limit <- upper_limit <- star_data%>% select(X2,X3,X4,X5,X6,X7,X10)
 upper_limit<- upper_limit %>% apply(2,to_limit) %>% as_tibble()
 lower_limit<- lower_limit %>% apply(2,to_limit,type='>') %>% as_tibble()
+
+#clean dataset with no < or > observation in it
 star_data <- apply(star_data,2,remove_limits) %>% as_tibble()
+
+#creating a new dataset with only upper and lower limit for each of the imputed variables
 colnames(lower_limit) <- paste0(colnames(lower_limit),'_l')
 colnames(upper_limit) <- paste0(colnames(upper_limit),'_u')
 limit <- cbind(lower_limit,upper_limit)
-#colSums(apply(star_data,2,is.na))/68
 
-#md.pattern(star_data)
-#md.pattern(orig)
-
-# columns <- colnames(star_data)
-# columns <- columns[-1]
-# grid <- t(combn(columns,2))
-# apply(grid,1,function(x){
-#   png(here(base,'plots','comissing',paste0(x[1],'vs',x[2],'.png',collapse='')),width = 600,height = 600)
-#   marginplot(star_data[, c(x[1],x[2])], col = mdc(1:2), cex = 1.2,
-#              cex.lab = 1.2, cex.numbers = 1.3, pch = 19,alpha = 0.4)
-#   dev.off()
-# })
-
+#copy of the dataset, i will apply the transformations here
 star_data2 <- tibble(star_data)
 star_data2 <- star_data2 %>% mutate(
   X2 = sqrt(X2),
@@ -59,15 +54,21 @@ star_data2 <- star_data2 %>% mutate(
   X6 = sqrt(X6),
   X10 = log(((X10-6.8)/2.2)/(1-(X10-6.8)/2.2))
   )
-star_data2
+
+#removing the star id and the binary condition from the predictors for the MI procedure
 imp0 <- mice(star_data2,maxit =0)
 pred <- imp0$predictorMatrix
 pred[1,] <- 0
 pred[,1] <- 0
 pred[12,] <- 0
 pred[,12] <- 0
+
+#multithreading version of mice, 5000 datasets imputed on 10 cores, so it's 50000 total complete
+#datasets in the end, twice as many as you had
 imp1 <-  parlmice(star_data2,method = 'norm',n.imp.core = 5000,n.core=10,predictorMatrix=pred)
 
+#creating a complete dataset with all the imputations, going back to the original variables
+#and removing all the observations with at least one variable not in the limits
 long_star <- mice::complete(imp1,'long')
 long_star <- tibble(long_star)
 long_star <- cbind(long_star,limit) 
