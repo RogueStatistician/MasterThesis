@@ -5,7 +5,7 @@
 #  (estimated run time in minutes)
 #SBATCH --output=/home/simonet/stdout.log
 #SBATCH --error=/home/simonet/stderr.log
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=10
 #  (change this value if you have a multithreaded program eg: --cpus-per-task=4 if you want to use 4 cores, 
 #    if you use OpenMP set export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK )
 #SBATCH --ntasks=1
