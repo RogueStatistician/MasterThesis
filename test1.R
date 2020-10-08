@@ -4,6 +4,8 @@ library(tibble)
 library(here)
 #library(VIM)
 library(dplyr)
+library(stringr)
+library(magrittr)
 to_limit <- function(column,type='<'){
   require(dplyr)
   if(!is.character(column)){
