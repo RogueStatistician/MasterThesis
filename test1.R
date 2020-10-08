@@ -1,9 +1,9 @@
 #reading data
 library(mice)
-library(tidyverse)
+library(tibble)
 library(here)
-library(VIM)
-
+#library(VIM)
+library(dplyr)
 to_limit <- function(column,type='<'){
   require(dplyr)
   if(!is.character(column)){
@@ -33,10 +33,10 @@ star_data <- apply(star_data,2,remove_limits) %>% as_tibble()
 colnames(lower_limit) <- paste0(colnames(lower_limit),'_l')
 colnames(upper_limit) <- paste0(colnames(upper_limit),'_u')
 limit <- cbind(lower_limit,upper_limit)
-colSums(apply(star_data,2,is.na))/68
+#colSums(apply(star_data,2,is.na))/68
 
-md.pattern(star_data)
-md.pattern(orig)
+#md.pattern(star_data)
+#md.pattern(orig)
 
 # columns <- colnames(star_data)
 # columns <- columns[-1]
