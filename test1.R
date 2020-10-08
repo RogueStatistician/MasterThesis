@@ -24,7 +24,7 @@ remove_limits <- function(column){
 }
 base <- paste0(c('Simone','Uni','Tesi','erasmus','code','MasterThesis'), collapse= '/')
 
-orig <- star_data <- read.csv(here(base,'Aerts-Molenberghs-Kenward-Neiner-Table.dat'),header = T,stringsAsFactors = F,na.strings = '*')
+orig <- star_data <- read.csv(here::here(base,'Aerts-Molenberghs-Kenward-Neiner-Table.dat'),header = T,stringsAsFactors = F,na.strings = '*')
 star_data <- tibble(star_data)
 lower_limit <- upper_limit <- star_data%>% select(X2,X3,X4,X5,X6,X7,X10)
 upper_limit<- upper_limit %>% apply(2,to_limit) %>% as_tibble()
@@ -58,14 +58,25 @@ star_data2 <- star_data2 %>% mutate(
   X10 = log(((X10-6.8)/2.2)/(1-(X10-6.8)/2.2))
   )
 star_data2
-
-imp1 <- mice(star_data2,m = 2500,maxit = 10)
+imp0 <- mice(star_data2,maxit =0)
+pred <- imp0$predictorMatrix
+pred[1,] <- 0
+pred[,1] <- 0
+pred[12,] <- 0
+pred[,12] <- 0
+imp1 <-  parlmice(star_data2,method = 'norm',n.imp.core = 5000,n.core=10,predictorMatrix=pred)
 
 long_star <- mice::complete(imp1,'long')
-head(long_star)
 long_star <- tibble(long_star)
 long_star <- cbind(long_star,limit) 
-
+long_star <- long_star %>% mutate(
+  X2 = X2^2,
+  X3 = X3^2,
+  X4 = X4^2,
+  X5 = X5^2,
+  X6 = X6^2,
+  X10 = 2.2*(exp(X10)/(1+exp(X10)))+6.8
+)
 long_star_filtered <- long_star %>% group_by(HDnumber) %>% 
   filter(X2 %between% c(unique(X2_l),unique(X2_u)))%>%
   filter(X3 %between% c(unique(X3_l),unique(X3_u)))%>%
@@ -74,5 +85,5 @@ long_star_filtered <- long_star %>% group_by(HDnumber) %>%
   filter(X6 %between% c(unique(X6_l),unique(X6_u)))%>%
   filter(X7 %between% c(unique(X7_l),unique(X7_u)))%>%
   filter(X10 %between% c(unique(X10_l),unique(X10_u)))
-long_star_filtered  
-View(long_star_filtered %>% group_by(HDnumber) %>% count())
+
+write.csv(long_star_filtered,here::here(base,'long_star_filtered2.csv'))
