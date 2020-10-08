@@ -5,6 +5,7 @@ library(parallel)
 library(plyr)
 
 base <- paste0(c('Simone','Uni','Tesi','erasmus','code','MasterThesis'), collapse= '/')
+source(here::here(base,'customPooledModels.R'))
 orig <- star_data <- read.csv(here::here(base,'long_star_filtered2.csv'),header = T,stringsAsFactors = F,na.strings = '*')
 
 maxn <- 62
