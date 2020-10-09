@@ -6,7 +6,7 @@ library(here)
 library(dplyr)
 library(stringr)
 library(magrittr)
-
+library(data.table)
 #functions to extract and remove the bounds for the variables
 to_limit <- function(column,type='<'){
   require(dplyr)

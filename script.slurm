@@ -1,6 +1,6 @@
 #!/bin/sh
 #SBATCH --job-name=MultipleImputation
-#SBATCH --account=simonet
+#SBATCH --account=ivsusers
 #SBATCH --time 100
 #  (estimated run time in minutes)
 #SBATCH --output=/home/simonet/stdout.log
@@ -16,7 +16,6 @@
 #   (use the normal partition=default)
 #SBATCH --qos=normal
 #   (use the normal qos=default)
-cd /path/where/to/start/the/job
-module load R
+cd ~/Documents/MasterThesis
 
 Rscript --vanilla test1.R
